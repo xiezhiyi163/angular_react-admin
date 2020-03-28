@@ -1,0 +1,30 @@
+@charset "utf-8";
+.bg-col-skyblue{
+	background-color: deepskyblue;
+}
+.bg-col-e7e7e7{
+	background-color: #e7e7e7;
+}
+.bg-col-fafafa{
+	background-color: #fafafa;
+}
+.col-white{
+	color: white;
+}
+.floatl{
+	float: left;
+}
+.floatr{
+	float: right;
+}
+.clboth{
+	clear: both;
+	display: block;
+}
+.clearP{
+	margin: 0;
+}
+td{
+	padding: 10px;
+}
+

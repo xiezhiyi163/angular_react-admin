@@ -1,0 +1,20 @@
+@charset "utf-8";
+.topwrap{
+	height: 44px;
+}
+#leftwrap{
+	width: 180px;
+	overflow: auto;
+	position: relative;
+	z-index: 1;
+}
+.items{
+	text-align: center;
+	padding: 11.5px 0;
+	border-bottom: 1px solid #ccc;
+	cursor: pointer;
+}
+#contwrap{
+	overflow: auto;
+	margin-top: -16px;
+}

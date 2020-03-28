@@ -1,0 +1,5 @@
+@charset "utf-8";
+.antdtable .ant-table-wrapper tr>td:first-child {
+    width: 20%;
+    min-width: 130px;
+}

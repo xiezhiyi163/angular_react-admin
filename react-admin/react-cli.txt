@@ -1,0 +1,256 @@
+﻿node 8.0.0或以上
+$ cnpm install -g create-react-app
+$ create-react-app my-app
+$ cd my-app/
+$ npm start
+
+构造完之后立马先创建一个组件文件夹，以免到时候分不清
+
+一般没有特别要求应该都不会用react去开发pc端前端的前台页面，更多情况下会开发pc端前端的后台页面
+
+html是真正的显示页面的文件，
+App。js是其中的组件页面，（可改为其他名称的组件，App。test。js可有可无）
+index。js是入口文件
+
+一般只管src文件夹就行，实在不行就改动html的内容或引入
+
+/**/
+
+构建完项目后的准备工作：
+ie9或以上兼容：
+    npm install --save-dev @babel/preset-env
+
+协助快速开发（无特殊兼容情况）：使用antd UI框架
+    npm install antd --save
+    然后每个页面都需要引入这个UI框架
+    import { 要加载的组件 } from 'antd'
+    import 'antd/dist/antd.css';
+
+react引用第三方插件得要进入插件里面用module.exports进行暴露出来
+==========
+jq必须要npm install --save-dev jquery
+
+/**/
+
+开始开发：
+跟以往不同的是，react的标签注释是使用{/*内容*/}来进行注释的，class写成className，style={{样式对象}},因为都是{}绑定数据的，可以直接做判断
+添加新属性就使用data-前缀去添加
+
+map循环
+------必须要有根元素且根元素必须要有一个key这个属性
+
+条件判断：
+    可在dom里面直接如下结构添加
+    { this.props.loggedIn ?
+        <span>
+            <h2>{ `Welcome Back ${ this.props.name }` }</h2>
+            <p>You can visit settings to reset your password</p>
+        </span>
+        :
+        <h2>Hey man! Log in to see this section</h2>
+    }
+
+
+
+页面跳转（创建页面-路由引进来-标签或其他方式跳转并出现在视图层里面）：
+
+    //-----
+
+    npm install react-router-dom --save
+    npm install --save react-router-config
+    npm install --save history//助于js操作页面跳转
+    路由js引入import React from 'react';
+        配置routes数组，跟vue一样的结构
+    组件页面引入如下：
+        import {
+            HashRouter as Router,//BrowserRouter为正常url模式，不过不会配置最好不要使用，js跳转配置麻烦
+            Route,
+            Link，
+            Switch,
+            Redirect,
+            withRouter，
+        }from 'react-router-dom';        
+        import { renderRoutes } from 'react-router-config';
+        import { createBrowserHistory } from 'history';
+        封装的路由js
+        //
+        页面组件该怎么写就怎么写，跳转就使用<Link to="路径">文本</Link>进行跳转
+        视图组件的根元素必须是router标签，一般只保留如下代码结构（特殊情况另外处理）:
+            <Router>
+                {renderRoutes(封装的路由js)}
+                或者下面那样
+                <Switch>                    
+                    <Route path=‘路径’ component={只能当前页面引入组件}>
+                        <Redirect to='重定向过去的路径'/>(非必要)
+                    </Route>
+                </Switch>
+                //域名重定向到首页的时候上面的Route结构都还是需要用到的，route加个属性exact，表示当前路径只显示当前路径组件内容
+            </Router>
+    子路由：
+        页面里面加入{renderRoutes(封装的路由js.children)}这个入口，以及在state里面加上：route:props.route
+    js实现页面跳转：
+        historys = createHashHistory()
+        函数里面historys.push('路径'),因为不允许添加相同的path，所以推荐使用window.location.hash代替
+    //-----
+    路由是否按需加载：
+    直接import为一开始直接加载
+    按需加载：
+        创建一个懒加载基础的组件，在里面放入如下异步加载代码：
+        import React from 'react';
+        export default function (getComponent) {
+        return class AsyncComponent extends React.Component {
+            static Component = null;
+            state = { Component: AsyncComponent.Component };
+
+            componentWillMount() {
+            if (!this.state.Component) {
+                getComponent().then(({default: Component}) => {
+                AsyncComponent.Component = Component
+                this.setState({ Component })
+                })
+            }
+            }
+            render() {
+            const { Component } = this.state
+            if (Component) {
+                return <Component {...this.props} />
+            }
+            return null
+            }
+        }
+        }
+        然后只需要在其他使用路由跳转的页面引入懒加载组件，调用如下方法并传入加载的组件路径：引入的组件名(()=>import('组件路径'))
+        阻止页面离开：当前页面的react-router的引入加个Prompt对象，然后<Prompt message="你确定要离开嘛?" />
+
+组件传值：
+    父到子：父:给子组件传个属性，子：this。props。属性接收（class类的构造函数跟super必须传入props）
+    子倒父：父：传个方法给子，子：拿到那个方法并给方法里面的数据赋值
+    兄弟传值：如果是普通reactjs，那就子传父再传子，如果是脚手架，都一样
+
+钩子函数：
+    componentDidMount()，相当于vue的mounted
+    componentWillMount()，相当于vue的created
+    componentWillReceiveProps(nextProps)，父组件里的子组件props属性值改变时，子组件触发
+    shouldComponentUpdate(nextProps, nextState) -> 返回true或者调用forceUpdate之后 -> componentWillUpdate(nextProps, nextState)
+    getSnapshotBeforeUpdate(prevProps, prevState),更新dom时会立刻调用，返回的任何值将会 作为参数被传递给componentDidUpdate()
+行内调用函数传值：函数名.bind(this,参数)
+
+redux状态管理：
+    三大原则：
+        单一数据源
+        整个应用的 state 被储存在一棵 object tree 中，并且这个 object tree 只存在于唯一一个 store 中
+        State 是只读的
+        唯一改变 state 的方法就是触发 action，action 是一个用于描述已发生事件的普通对象
+        使用纯函数来执行修改
+        为了描述 action 如何改变 state tree ，你需要编写 reducers
+
+    普遍运用的场景：
+        列表，购物车，收藏等
+
+    npm install --save redux
+    npm install --save react-redux
+    npm install --save-dev redux-devtools
+    // 中间件，作用：如果不使用该中间件，当我们dispatch一个action时，需要给dispatch函数传入action对象；但如果我们使用了这个中间件，那么就可以传入一个函数，这个函数接收两个参数:dispatch和getState。这个dispatch可以在将来的异步请求完成后使用，对于异步action很有用
+    npm install --save redux-thunk
+
+    redux只需要关注store文件夹中的配置对象：actions.js、reducers.js、state.js，然后有个index.js的主文件来创建实例
+    state.js===>export default {默认值}
+    reducers.js====>
+        // 工具函数，用于组织多个reducer，并返回reducer集合
+        import { combineReducers } from 'redux'
+        // 默认值
+        import defaultState from './state.js'
+        //一个reducer就是一个函数,参数：（（state = defaultState.某个属性且只能一个）, action）
+            switch判断action.type来是否返回action.data或者必须的默认值state
+            把函数名暴露出去
+    actions.js=====>
+        创建对应state属性的函数，比如：
+        export function setPageTitle (data) {
+            return (dispatch, getState) => {
+                //。。。
+                dispatch({ type: 'SET_PAGE_TITLE', data: data })
+            }
+        }
+    创建实例：（代码）
+        // applyMiddleware: redux通过该函数来使用中间件
+        // createStore: 用于创建store实例
+        import { applyMiddleware, createStore } from 'redux'
+
+        // 中间件，作用：如果不使用该中间件，当我们dispatch一个action时，需要给dispatch函数传入action对象；但如果我们使用了这个中间件，那么就可以传入一个函数，这个函数接收两个参数:dispatch和getState。这个dispatch可以在将来的异步请求完成后使用，对于异步action很有用
+        import thunk from 'redux-thunk'
+
+        // 引入reducer
+        import reducers from './reducers.js'
+
+        // 创建store实例
+        let store = createStore(
+        reducers,
+        applyMiddleware(thunk)
+        )
+
+        export default store
+    使用：
+        入口文件
+            import { Provider } from 'react-redux'
+            import store from 'store的index的路径'
+            render里面改成
+                        <div>
+                            {/* 将store作为prop传入，即可使应用中的所有组件使用store */}
+                            <Provider store = {store}>
+                                对应的入口组件
+                            </Provider>
+                        </div>
+        组件：
+            // connect方法的作用：将额外的props传递给组件，并返回新的组件，组件在该过程中不会受到影响
+            import { connect } from 'react-redux'
+            // 引入action
+            import { 暴露出来的函数 } from './_store/actions.js'
+            //暴露出来的函数用es6赋值：
+            let {暴露出来的函数} = this.props（不可与组件互传的属性相同）
+    			然后启用对应的方法
+            //解构store
+            let { state里面的属性 } = this.props
+            // mapStateToProps：将state映射到组件的props中
+            const mapStateToProps = (state) => {//非必需
+                return {
+                    state属性：state.属性
+                }
+            }
+
+            // mapDispatchToProps：将dispatch映射到组件的props中
+            const mapDispatchToProps = (dispatch, ownProps) => {
+            return {
+                setPageTitle (data) {//尽量函数名跟actions里面的命名一样
+                    // 如果不懂这里的逻辑可查看前面对redux-thunk的介绍
+                    dispatch(setPageTitle(data))
+                    // 执行setPageTitle会返回一个函数
+                    // 这正是redux-thunk的所用之处:异步action
+                    // 上行代码相当于
+                    /*dispatch((dispatch, getState) => {
+                        dispatch({ type: 'SET_PAGE_TITLE', data: data })
+                    )*/
+                },
+                setInfoList (data) {//这里也尽量函数名跟actions里面的命名一样
+                    dispatch(setInfoList(data))
+                }
+            }
+            }
+            export default connect(mapStateToProps, mapDispatchToProps)(组件)
+                
+			//使用的组件跟actions关联，启用的actions方法的参数必须跟reducers里面任意方法的判断要对应
+			//=====并且放在使用的组件里面的mapStateToProps中的return当中的属性可以用props来获取,参数state是reducers大对象里面所有方法各自返回的内容，组件那里异步获取数据
+			//=====可通过调用actions方法修改reducers从而把新数据传递到mapStateToProps中的return当中
+
+//登录路由守卫：
+    App.js或者其他视图组件，判断是否存在用户ID，是的话，不进去登录页，否则进去登录页
+    不进去登录页，搞个定时进行判断，没有用户ID返回登录页，
+    登陆之后，判断用户ID存在，即使跳进了登录页，也要重定向回来
+    如果hash只有‘/’（react有空白bug，得再次刷新），那就把登录页的元素id加进来进行判断
+
+、、安装echarts
+    npm install --save echarts-for-react
+    npm install echarts --save
+    当前需要引入的页面js引入如下
+        import React from 'react';
+        import ReactEcharts from 'echarts-for-react';
+
