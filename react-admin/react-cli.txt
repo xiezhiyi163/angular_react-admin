@@ -2,6 +2,9 @@
 $ cnpm install -g create-react-app
 $ create-react-app my-app
 $ cd my-app/
+
+要修改端口：在node_modules文件夹里的可以看到react-scripts文件夹，在start.js里可以找到修改端口的代码
+
 $ npm start
 
 构造完之后立马先创建一个组件文件夹，以免到时候分不清
