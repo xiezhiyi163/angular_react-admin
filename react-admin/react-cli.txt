@@ -30,6 +30,10 @@ ie9或以上兼容：
     import 'antd/dist/antd.css';
 
 react引用第三方插件得要进入插件里面用module.exports进行暴露出来
+react自定义插件可以暴露出来，也可以直接在当前页面的js那里用class做一个出来，然后直接在需要引用的地方
+
+每个js，import必须放在最开头
+
 ==========
 jq必须要npm install --save-dev jquery
 
