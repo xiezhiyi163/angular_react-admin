@@ -130,7 +130,7 @@ map循环
         阻止页面离开：当前页面的react-router的引入加个Prompt对象，然后<Prompt message="你确定要离开嘛?" />
 
 组件传值：
-    父到子：父:给子组件传个属性，子：this。props。属性接收（class类的构造函数跟super必须传入props）
+    父到子：父:给子组件某个元素传个自定义属性（原生怎么传就怎么传，记得加{}），子：this.props.属性接收（class类的构造函数constructor跟super必须传入props）
     子倒父：父：传个方法给子，子：拿到那个方法并给方法里面的数据赋值
     兄弟传值：如果是普通reactjs，那就子传父再传子，如果是脚手架，都一样
 
