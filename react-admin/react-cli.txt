@@ -80,6 +80,15 @@ map循环
         import { renderRoutes } from 'react-router-config';
         import { createBrowserHistory } from 'history';
         封装的路由js
+	例：
+	_router = [{
+		component:ar(() => import('./index/index.js')),
+		path:'/',
+		exact: true
+	},{
+		component:ar(() => import('./index1/index.js')),
+		path:'/page2',
+	}]
         //
         页面组件该怎么写就怎么写，跳转就使用<Link to="路径">文本</Link>进行跳转
         视图组件的根元素必须是router标签，一般只保留如下代码结构（特殊情况另外处理）:
