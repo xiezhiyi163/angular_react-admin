@@ -86,6 +86,9 @@ map循环
 		path:'/',
 		exact: true
 	},{
+		component:ar(() => import('./index/index.js')),
+		path:'/index'
+	},{
 		component:ar(() => import('./index1/index.js')),
 		path:'/page2',
 	}]
