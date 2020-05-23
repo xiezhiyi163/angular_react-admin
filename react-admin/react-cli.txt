@@ -273,3 +273,16 @@ redux状态管理：
         import React from 'react';
         import ReactEcharts from 'echarts-for-react';
 
+页面缓存
+	第一种：
+		npm install react-router-cache-route --save
+		import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
+		写法：
+		<CacheSwitch>
+			<CacheRoute exact path="/list" component={List} when="always" /> 
+		</CacheSwitch>
+		when有三个值：[forward, back, always]，默认：forward
+	第二种：
+		npm install react-keeper
+		import { HashRouter as cacheRouter, Route as cacheRoute } from 'react-keeper'，
+		给route标签加cache属性
