@@ -282,7 +282,7 @@ redux状态管理：
 			<CacheRoute exact path="/list" component={List} when="always" /> 
 		</CacheSwitch>
 		when有三个值：[forward, back, always]，默认：forward
-	第二种：
+	第二种（倾向这种）：
 		npm install react-keeper
 		import { HashRouter as cacheRouter, Route as cacheRoute } from 'react-keeper'，
 		给route标签加cache属性
