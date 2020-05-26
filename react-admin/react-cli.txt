@@ -172,93 +172,62 @@ redux状态管理：
     // 中间件，作用：如果不使用该中间件，当我们dispatch一个action时，需要给dispatch函数传入action对象；但如果我们使用了这个中间件，那么就可以传入一个函数，这个函数接收两个参数:dispatch和getState。这个dispatch可以在将来的异步请求完成后使用，对于异步action很有用
     npm install --save redux-thunk
 
-    redux只需要关注store文件夹中的配置对象：actions.js、reducers.js、state.js，然后有个index.js的主文件来创建实例
-    state.js===>export default {默认值}
-    reducers.js====>
-        // 工具函数，用于组织多个reducer，并返回reducer集合
-        import { combineReducers } from 'redux'
-        // 默认值
-        import defaultState from './state.js'
-        //一个reducer就是一个函数,参数：（（state = defaultState.某个属性且只能一个）, action）
-            switch判断action.type来是否返回action.data或者必须的默认值state
-            把函数名暴露出去
-    actions.js=====>
-        创建对应state属性的函数，比如：
-        export function setPageTitle (data) {
-            return (dispatch, getState) => {
-                //。。。
-                dispatch({ type: 'SET_PAGE_TITLE', data: data })
-            }
-        }
-    创建实例：（代码）
-        // applyMiddleware: redux通过该函数来使用中间件
-        // createStore: 用于创建store实例
-        import { applyMiddleware, createStore } from 'redux'
+		     redux只需要关注store文件夹中的配置对象：actions.js、reducers.js、store.js，然后入口index.js引入并创建实例
+			//********************************************
+			 state===>暴露一些数据
+			 reducer.js===>
+				import { combineReducers } from 'redux'
+				import state from '存数据的地方'		
+				function 定义的方法(state = 上面定义的数据，拿下来用,action){
+				    switch(action.type){
+				        case '从action传进来的标识':
+				            return state + action.data(action.data是接收组件调用该方法时传进来的参数)
+				        default:
+				            return state
+				    }
+				}
+				
+				export default combineReducers({
+				    setLog_s,
+				})
+			 action.js===>
+				import store from 'store实例的位置'
+				设定一个触发机制的函数，传入data参数，然后返回一个带dispatch，getState参数的箭头函数，里面时查找标识的dispatch启动函数，例如：
+					dispatch({ type: 'log', data: data })
+					查找reducer文件里面哪个函数有这个标识，就运行该标识对应的逻辑
+		     store.js===>
+				import { applyMiddleware, createStore } from 'redux'
+				import thunk from 'redux-thunk'
+				import reducers from 'reducer。js的位置'
+				let store = createStore(
+				    reducers,
+				    applyMiddleware(thunk)
+				)
+				export default store
+			//
+			index.js里面import { connect } from 'react-redux'和store实例的位置，React.StrictMode这个标签变为
+			<Provider store={store}>
+			    <App />
+			  </Provider>
+			store其实是一个数据对象
+			使用的时候，组件页面记得引入import { connect } from 'react-redux'和action对应的方法{方法或函数}
+			组件页面把export default 最终展示的组件，变成
+			export default connect((state) => {
+				return {setLog_s:state返回的全部方法，拿其中一个出来赋给它}
+			},(dispatch, ownProps) => {//将dispatch映射到组件的props当中
+				return {
+					setLog_a_fn (data) {//自定义属性，然后方法传入data，去触发action的dispatch并获取之前state存在的reducer里面有对应的方法，以便调用
+						dispatch(setLog_a(data))
+					},
+				}
+			})(最终展示的组件)
+			//****************************************************
+			流程（重点）：
+				创建state初始数据，
+				然后在reducer里面创建方法规则，
+				然后action里面调用相应的规则，
+				使用redux状态管理的时候还得要创建一个store实例，引到入口index.js里面去用
 
-        // 中间件，作用：如果不使用该中间件，当我们dispatch一个action时，需要给dispatch函数传入action对象；但如果我们使用了这个中间件，那么就可以传入一个函数，这个函数接收两个参数:dispatch和getState。这个dispatch可以在将来的异步请求完成后使用，对于异步action很有用
-        import thunk from 'redux-thunk'
-
-        // 引入reducer
-        import reducers from './reducers.js'
-
-        // 创建store实例
-        let store = createStore(
-        reducers,
-        applyMiddleware(thunk)
-        )
-
-        export default store
-    使用：
-        入口文件
-            import { Provider } from 'react-redux'
-            import store from 'store的index的路径'
-            render里面改成
-                        <div>
-                            {/* 将store作为prop传入，即可使应用中的所有组件使用store */}
-                            <Provider store = {store}>
-                                对应的入口组件
-                            </Provider>
-                        </div>
-        组件：
-            // connect方法的作用：将额外的props传递给组件，并返回新的组件，组件在该过程中不会受到影响
-            import { connect } from 'react-redux'
-            // 引入action
-            import { 暴露出来的函数 } from './_store/actions.js'
-            //暴露出来的函数用es6赋值：
-            let {暴露出来的函数} = this.props（不可与组件互传的属性相同）
-    			然后启用对应的方法
-            //解构store
-            let { state里面的属性 } = this.props
-            // mapStateToProps：将state映射到组件的props中
-            const mapStateToProps = (state) => {//非必需
-                return {
-                    state属性：state.属性
-                }
-            }
-
-            // mapDispatchToProps：将dispatch映射到组件的props中
-            const mapDispatchToProps = (dispatch, ownProps) => {
-            return {
-                setPageTitle (data) {//尽量函数名跟actions里面的命名一样
-                    // 如果不懂这里的逻辑可查看前面对redux-thunk的介绍
-                    dispatch(setPageTitle(data))
-                    // 执行setPageTitle会返回一个函数
-                    // 这正是redux-thunk的所用之处:异步action
-                    // 上行代码相当于
-                    /*dispatch((dispatch, getState) => {
-                        dispatch({ type: 'SET_PAGE_TITLE', data: data })
-                    )*/
-                },
-                setInfoList (data) {//这里也尽量函数名跟actions里面的命名一样
-                    dispatch(setInfoList(data))
-                }
-            }
-            }
-            export default connect(mapStateToProps, mapDispatchToProps)(组件)
-                
-			//使用的组件跟actions关联，启用的actions方法的参数必须跟reducers里面任意方法的判断要对应
-			//=====并且放在使用的组件里面的mapStateToProps中的return当中的属性可以用props来获取,参数state是reducers大对象里面所有方法各自返回的内容，组件那里异步获取数据
-			//=====可通过调用actions方法修改reducers从而把新数据传递到mapStateToProps中的return当中
 
 //登录路由守卫：
     App.js或者其他视图组件，判断是否存在用户ID，是的话，不进去登录页，否则进去登录页
